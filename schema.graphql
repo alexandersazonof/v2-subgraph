@@ -75,6 +75,8 @@ type Pair @entity {
   token0Price: BigDecimal!
   token1Price: BigDecimal!
 
+  length: BigInt!
+
   # lifetime volume stats
   volumeToken0: BigDecimal!
   volumeToken1: BigDecimal!
@@ -95,6 +97,11 @@ type Pair @entity {
   mints: [Mint!]! @derivedFrom(field: "pair")
   burns: [Burn!]! @derivedFrom(field: "pair")
   swaps: [Swap!]! @derivedFrom(field: "pair")
+}
+
+type PairLength @entity {
+  id: ID!
+  lastLength: BigInt!
 }
 
 type User @entity {

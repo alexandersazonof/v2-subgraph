@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
-import { log } from '@graphprotocol/graph-ts'
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import { PairCreated } from '../types/Factory/Factory'
-import { Bundle, Pair, Token, UniswapFactory } from '../types/schema'
+import { Bundle, Pair, Token, UniswapFactory, PairLength } from '../types/schema'
 import { Pair as PairTemplate } from '../types/templates'
 import {
   FACTORY_ADDRESS,
@@ -103,6 +103,7 @@ export function handleNewPair(event: PairCreated): void {
   pair.untrackedVolumeUSD = ZERO_BD
   pair.token0Price = ZERO_BD
   pair.token1Price = ZERO_BD
+  pair.length = getPairLength().lastLength || BigInt.fromI32(0);
 
   // create the tracked contract based on the template
   PairTemplate.create(event.params.pair)
@@ -112,4 +113,17 @@ export function handleNewPair(event: PairCreated): void {
   token1.save()
   pair.save()
   factory.save()
+}
+
+function getPairLength(): PairLength | null {
+  let pairLength = PairLength.load('1')
+  if (pairLength == null) {
+    pairLength = new PairLength('1');
+    pairLength.lastLength = BigInt.fromI32(0);
+    pairLength.save();
+  }
+
+  pairLength.lastLength = pairLength.lastLength.plus(BigInt.fromI32(1));
+
+  return pairLength;
 }
